@@ -1,10 +1,11 @@
 package com.jwt.plantilla_spring_security.controller;
 
-
 import com.jwt.plantilla_spring_security.Dto.AuthResponse;
 import com.jwt.plantilla_spring_security.Dto.AuthenticationRequest;
 import com.jwt.plantilla_spring_security.Dto.RegisterRequest;
 import com.jwt.plantilla_spring_security.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,9 +30,21 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthenticationRequest request){
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
+        AuthResponse authResponse = authService.authenticate(request);
+
+        // Creamos la cookie del JWT
+        Cookie jwtCookie = new Cookie("jwt", authResponse.getToken());
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(false);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(24 * 60 * 60);
+        jwtCookie.setAttribute("SameSite", "Strict");
+
+        response.addCookie(jwtCookie);
+        return ResponseEntity.ok(authResponse);
     }
+
 
 
 

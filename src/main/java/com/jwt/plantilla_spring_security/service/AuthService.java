@@ -10,6 +10,4 @@ public interface AuthService {
 
     AuthResponse register(RegisterRequest request);
 
-
-
 }

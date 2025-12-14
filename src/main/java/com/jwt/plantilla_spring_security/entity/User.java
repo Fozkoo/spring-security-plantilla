@@ -39,8 +39,9 @@ public class User implements UserDetails {
     @Column(name = "username", length = 45)
     private String username;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

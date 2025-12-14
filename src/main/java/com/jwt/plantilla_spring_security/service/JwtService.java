@@ -1,6 +1,7 @@
 package com.jwt.plantilla_spring_security.service;
 
 
+import com.jwt.plantilla_spring_security.entity.User;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -31,13 +32,15 @@ public class JwtService {
 
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(((User) userDetails).getEmail()) // ✅ usar email
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
 
 
@@ -66,9 +69,10 @@ public class JwtService {
 
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUserName(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String email = getUserName(token);
+        return (email.equals(((User) userDetails).getEmail()) && !isTokenExpired(token));
     }
+
 
     private boolean isTokenExpired(String token) {
 
